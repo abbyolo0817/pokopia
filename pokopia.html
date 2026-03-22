@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pokémon Pokopia 圖鑑</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky:#e8f4fd;--grass:#7ec850;--cream:#fffaf0;--card:#fff;
+  --border:#e0d5c5;--accent:#ff6b6b;--accent2:#ffb347;
+  --blue:#4db8ff;--purple:#b088f9;--green:#5fd97a;
+  --text:#3d2f1e;--text2:#7a6555;--text3:#b0a090;
+  --shadow:0 4px 16px rgba(100,70,40,.12);
+  --shadow2:0 8px 32px rgba(100,70,40,.18);
+  --r:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--sky);background-image:radial-gradient(ellipse 80% 30% at 50% 100%,rgba(126,200,80,.22) 0%,transparent 70%),radial-gradient(circle at 10% 20%,rgba(255,200,100,.1) 0%,transparent 50%);min-height:100vh;font-family:'Noto Sans TC',sans-serif;color:var(--text)}
+
+/* HEADER */
+header{background:linear-gradient(180deg,#ff6b6b 0%,#ff8c42 100%);position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(255,100,60,.3)}
+.hstripe{height:5px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.3) 0,rgba(255,255,255,.3) 12px,transparent 12px,transparent 20px)}
+.hinner{max-width:1300px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo-area{display:flex;align-items:center;gap:10px}
+.logo-ball{width:48px;height:48px;filter:drop-shadow(0 3px 8px rgba(0,0,0,.3));flex-shrink:0}
+.logo-text{font-family:'Nunito',sans-serif;font-weight:900;line-height:1.1}
+.logo-text .l1{font-size:11px;color:rgba(255,255,255,.85);letter-spacing:2px;text-transform:uppercase}
+.logo-text .l2{font-size:22px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2)}
+.stats-area{margin-left:auto;display:flex;align-items:center;gap:12px}
+.stat-pill{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 14px;text-align:center;min-width:68px}
+.stat-pill .num{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;color:#fff;line-height:1}
+.stat-pill .lbl{font-size:10px;color:rgba(255,255,255,.8);margin-top:1px}
+.prog-wrap{position:relative;width:58px;height:58px}
+.prog-wrap svg{transform:rotate(-90deg)}
+.prog-track{stroke:rgba(255,255,255,.25)}
+.prog-fill{stroke:#fff;stroke-dasharray:145;stroke-dashoffset:145;transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1);stroke-linecap:round}
+.prog-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;font-size:12px;font-weight:900;color:#fff}
+.grass-deco{height:20px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'%3E%3Cpath d='M0,20 Q5,5 10,20 Q15,5 20,20 Q25,5 30,20 Q35,5 40,20 Q45,5 50,20 Q55,5 60,20 Q65,5 70,20 Q75,5 80,20 Q85,5 90,20 Q95,5 100,20 Z' fill='%237ec850'/%3E%3C/svg%3E") repeat-x;background-size:100px 20px;background-color:#ff8c42}
+
+/* CONTROLS */
+.ctrl{max-width:1300px;margin:0 auto;padding:16px 20px 0}
+.search-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.sbox{position:relative;flex:1;min-width:200px}
+.sbox input{width:100%;background:#fff;border:2.5px solid var(--border);border-radius:999px;padding:11px 18px 11px 44px;font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.sbox input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,107,107,.15)}
+.sbox input::placeholder{color:var(--text3)}
+.sbox .si{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px}
+.fbtn-row{display:flex;gap:6px;flex-wrap:wrap}
+.fbtn{background:#fff;border:2.5px solid var(--border);border-radius:999px;padding:8px 18px;font-size:13px;font-weight:700;font-family:inherit;color:var(--text2);cursor:pointer;transition:all .18s;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.fbtn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(255,107,107,.3)}
+.fbtn.ga.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 4px 12px rgba(95,217,122,.3)}
+.fbtn.ba.active{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 4px 12px rgba(77,184,255,.3)}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip{background:#fff;border:2px solid var(--border);border-radius:999px;padding:4px 14px;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.rchip{background:#fff;border:2px solid var(--border);border-radius:999px;padding:4px 14px;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s}
+.rchip:hover{opacity:.8}
+.rchip.active.普通{background:#5fd97a;border-color:#5fd97a;color:#fff}
+.rchip.active.稀有{background:var(--blue);border-color:var(--blue);color:#fff}
+.rchip.active.非常稀有{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.rchip.active.特殊{background:var(--purple);border-color:var(--purple);color:#fff}
+.bulk-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding-top:4px}
+.blk-lbl{font-size:12px;color:var(--text3);font-weight:700}
+.blk-btn{background:#fff;border:2px solid var(--border);border-radius:999px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s}
+.blk-btn:hover{border-color:var(--green);color:var(--green)}
+.blk-btn.danger:hover{border-color:var(--accent);color:var(--accent)}
+.result-info{font-size:12px;color:var(--text3);margin-bottom:12px;font-weight:700}
+
+/* MAIN */
+main{max-width:1300px;margin:0 auto;padding:0 20px 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px}
+
+/* CARD */
+.card{background:#fff;border:3px solid var(--border);border-radius:var(--r);padding:14px 14px 12px;cursor:default;transition:all .22s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;box-shadow:var(--shadow);animation:popIn .35s cubic-bezier(.4,0,.2,1) both}
+@keyframes popIn{from{opacity:0;transform:scale(.88) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:72px;background:linear-gradient(180deg,#f0f8ff 0%,transparent 100%);border-radius:var(--r) var(--r) 0 0;pointer-events:none}
+.card:hover{transform:translateY(-5px) scale(1.02);border-color:var(--accent);box-shadow:var(--shadow2)}
+.card.caught{border-color:#5fd97a;background:linear-gradient(180deg,#f0fff4 0%,#fff 50%)}
+.card.caught:hover{border-color:var(--green);box-shadow:0 8px 28px rgba(95,217,122,.25)}
+.rstripe{position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--r) var(--r) 0 0}
+.rstripe.普通{background:#5fd97a}
+.rstripe.稀有{background:var(--blue)}
+.rstripe.非常稀有{background:linear-gradient(90deg,var(--accent2),#ffda48)}
+.rstripe.特殊{background:linear-gradient(90deg,var(--purple),#f9a8d4)}
+.pimg{width:90px;height:90px;margin:8px auto 4px;display:flex;align-items:center;justify-content:center}
+.pimg img{width:84px;height:84px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 4px 8px rgba(0,0,0,.12));transition:transform .3s}
+.card:hover .pimg img{transform:scale(1.12) translateY(-3px)}
+.card.caught .pimg img{filter:drop-shadow(0 4px 8px rgba(95,217,122,.3))}
+.pimg .noimg{width:84px;height:84px;border-radius:50%;background:#f5f0e8;display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--text3)}
+.cno{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-align:center;margin-bottom:2px}
+.cname{font-size:14px;font-weight:900;color:var(--text);text-align:center;margin-bottom:8px;font-family:'Nunito',sans-serif}
+.card.caught .cname{color:#2a9b47}
+.cskills{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-bottom:8px;min-height:20px}
+.stag{background:#eef6ff;border:1.5px solid #c5dfff;color:#3a7bd5;border-radius:6px;padding:1px 7px;font-size:10px;font-weight:700}
+.chabitat{font-size:10px;color:var(--text3);text-align:center;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cnote{font-size:10px;color:var(--accent2);font-weight:700;text-align:center;margin-bottom:4px}
+.cfoot{display:flex;justify-content:space-between;align-items:center;border-top:1.5px dashed #ede5d8;padding-top:8px;margin-top:4px}
+.rbadge{font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px}
+.rbadge.普通{background:#dcfce7;color:#16a34a}
+.rbadge.稀有{background:#dbeafe;color:#1d4ed8}
+.rbadge.非常稀有{background:#fff7ed;color:#c2410c}
+.rbadge.特殊{background:#f3e8ff;color:#7c3aed}
+
+/* POKEBALL BTN */
+.pb-btn{width:36px;height:36px;border:none;background:transparent;cursor:pointer;padding:0;flex-shrink:0;transition:transform .2s}
+.pb-btn:hover{transform:scale(1.18) rotate(10deg)}
+@keyframes throwBall{0%{transform:scale(1) rotate(0)}30%{transform:scale(1.4) rotate(20deg)}55%{transform:scale(.9) rotate(-10deg)}75%{transform:scale(1.05) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+.pb-btn.throw{animation:throwBall .5s ease}
+
+/* EMPTY */
+.empty-s{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text3)}
+.empty-s .ei{font-size:64px;margin-bottom:16px}
+.empty-s .et{font-size:18px;font-weight:700}
+
+/* TOAST */
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(30px);background:#fff;border:3px solid var(--green);border-radius:999px;padding:10px 24px;font-size:14px;font-weight:900;color:#2a9b47;pointer-events:none;opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999;box-shadow:0 6px 24px rgba(95,217,122,.3);white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.unc{border-color:var(--accent);color:var(--accent);box-shadow:0 6px 24px rgba(255,107,107,.25)}
+
+/* SCROLL TOP */
+#scrollTop{position:fixed;bottom:24px;right:24px;width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:50%;font-size:20px;color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(255,107,107,.4);z-index:200;transition:transform .2s}
+#scrollTop.vis{display:flex}
+#scrollTop:hover{transform:scale(1.1) translateY(-2px)}
+
+@media(max-width:600px){.grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}.l2{font-size:18px!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hinner">
+    <div class="logo-area">
+      <svg class="logo-ball" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="white" stroke="#333" stroke-width="4"/>
+        <path d="M2,50 Q2,2 50,2 Q98,2 98,50 Z" fill="#ff4444"/>
+        <rect x="2" y="46" width="96" height="8" fill="#333"/>
+        <circle cx="50" cy="50" r="14" fill="white" stroke="#333" stroke-width="5"/>
+        <circle cx="50" cy="50" r="7" fill="white" stroke="#555" stroke-width="3"/>
+        <circle cx="16" cy="22" r="5" fill="rgba(255,255,255,0.45)"/>
+      </svg>
+      <div class="logo-text">
+        <div class="l1">Pokémon</div>
+        <div class="l2">POKOPIA 圖鑑</div>
+      </div>
+    </div>
+    <div class="stats-area">
+      <div class="stat-pill"><div class="num" id="totalCount">0</div><div class="lbl">全部</div></div>
+      <div class="stat-pill"><div class="num" id="caughtCount">0</div><div class="lbl">已捕捉</div></div>
+      <div class="prog-wrap">
+        <svg width="58" height="58" viewBox="0 0 58 58">
+          <circle class="prog-track" cx="29" cy="29" r="23" fill="none" stroke-width="5"/>
+          <circle class="prog-fill" id="progRing" cx="29" cy="29" r="23" fill="none" stroke-width="5"/>
+        </svg>
+        <div class="prog-lbl" id="progPct">0%</div>
+      </div>
+    </div>
+  </div>
+  <div class="grass-deco"></div>
+</header>
+
+<div class="ctrl">
+  <div class="search-row">
+    <div class="sbox">
+      <span class="si">🔍</span>
+      <input type="text" id="searchInput" placeholder="搜尋名稱、技能、棲息地…">
+    </div>
+    <div class="fbtn-row">
+      <button class="fbtn active" data-f="all">全部</button>
+      <button class="fbtn ga" data-f="caught">⚾ 已捕捉</button>
+      <button class="fbtn ba" data-f="uncaught">◯ 未捕捉</button>
+    </div>
+  </div>
+  <div class="chip-row" id="skillChips"><div class="chip active" data-sk="all">全部技能</div></div>
+  <div class="chip-row" id="rarityChips">
+    <div class="rchip active" data-r="all">全部稀有度</div>
+    <div class="rchip 普通" data-r="普通">🟢 普通</div>
+    <div class="rchip 稀有" data-r="稀有">🔵 稀有</div>
+    <div class="rchip 非常稀有" data-r="非常稀有">🟡 非常稀有</div>
+    <div class="rchip 特殊" data-r="特殊">💜 特殊</div>
+  </div>
+  <div class="bulk-row">
+    <span class="blk-lbl">批量操作：</span>
+    <button class="blk-btn" id="catchVisible">⊕ 全部標記為已捕捉</button>
+    <button class="blk-btn danger" id="resetAll">↺ 重置全部記錄</button>
+  </div>
+  <div class="result-info" id="resultInfo"></div>
+</div>
+
+<main><div class="grid" id="grid"></div></main>
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div id="toast"></div>
+
+<script>
+const POKEDEX=[
+  {no:"001",img:1,  name:"妙蛙種子",  move:"樹葉",  sk:["栽培"],              h:"綠色草叢",           r:"普通"},
+  {no:"002",img:2,  name:"妙蛙草",    move:"–",     sk:["栽培"],              h:"滿是鮮花的景色",     r:"稀有"},
+  {no:"003",img:3,  name:"妙蛙花",    move:"–",     sk:["栽培","散佈"],       h:"滿是鮮花的景色",     r:"非常稀有",note:"乾燥荒野之鎮"},
+  {no:"004",img:4,  name:"小火龍",    move:"–",     sk:["燃燒"],              h:"綠色草叢",           r:"普通"},
+  {no:"005",img:5,  name:"火恐龍",    move:"–",     sk:["燃燒"],              h:"露營組",             r:"稀有",note:"乾燥荒野之鎮"},
+  {no:"006",img:6,  name:"噴火龍",    move:"–",     sk:["燃燒","飛翔"],       h:"綠色草叢",           r:"非常稀有"},
+  {no:"007",img:7,  name:"傑尼龜",    move:"水槍",  sk:["潤澤"],              h:"綠色草叢",           r:"普通"},
+  {no:"008",img:8,  name:"卡咪龜",    move:"–",     sk:["潤澤"],              h:"潤澤的草叢",         r:"稀有"},
+  {no:"009",img:9,  name:"水箭龜",    move:"–",     sk:["潤澤","交易"],       h:"潤澤的草叢",         r:"非常稀有"},
+  {no:"010",img:16, name:"波波",      move:"–",     sk:["飛翔","尋物"],       h:"高台的草叢",         r:"普通"},
+  {no:"011",img:17, name:"比比鳥",    move:"–",     sk:["飛翔","尋物"],       h:"高台的草叢",         r:"稀有"},
+  {no:"013",img:43, name:"走路草",    move:"–",     sk:["栽培"],              h:"綠色草叢",           r:"普通"},
+  {no:"014",img:45, name:"臭臭花",    move:"–",     sk:["栽培"],              h:"南國風情",           r:"普通"},
+  {no:"017",img:46, name:"派拉斯",    move:"–",     sk:["尋物"],              h:"高台的花田",         r:"普通"},
+  {no:"018",img:47, name:"派拉斯特",  move:"–",     sk:["尋物"],              h:"高台的花田",         r:"稀有"},
+  {no:"019",img:52, name:"毛球",      move:"–",     sk:["尋物"],              h:"被照亮的草叢",       r:"普通"},
+  {no:"020",img:53, name:"摩魯蛾",    move:"–",     sk:["尋物"],              h:"被照亮的草叢",       r:"稀有"},
+  {no:"021",img:69, name:"喇叭芽",    move:"–",     sk:["栽培","散佈"],       h:"樹蔭的草叢",         r:"普通"},
+  {no:"022",img:71, name:"口呆花",    move:"–",     sk:["栽培","散佈"],       h:"華麗的桌子",         r:"稀有"},
+  {no:"024",img:79, name:"呆呆獸",    move:"–",     sk:["潤澤","打哈欠"],     h:"岸邊的草叢",         r:"普通"},
+  {no:"025",img:80, name:"呆殼獸",    move:"–",     sk:["潤澤","交易"],       h:"岸邊的草叢",         r:"非常稀有"},
+  {no:"026",img:199,name:"呆呆王",    move:"–",     sk:["潤澤","瞬間移動"],   h:"岸邊的草叢",         r:"非常稀有"},
+  {no:"028",img:81, name:"三合一磁怪",move:"–",     sk:["發電"],              h:"滿滿的垃圾桶",       r:"稀有"},
+  {no:"030",img:95, name:"大岩蛇",    move:"–",     sk:["粉碎","整地"],       h:"沙沙的草叢",         r:"普通"},
+  {no:"032",img:104,name:"卡拉卡拉",  move:"–",     sk:["建築"],              h:"被花圍繞的墳墓",     r:"普通"},
+  {no:"034",img:106,name:"無畏小子",  move:"–",     sk:["交易"],              h:"修行之瀑布",         r:"普通"},
+  {no:"035",img:107,name:"飛腿郎",    move:"–",     sk:["交易"],              h:"緊急救護所",         r:"普通"},
+  {no:"036",img:56, name:"快拳郎",    move:"碎岩",  sk:["交易"],              h:"健身區的休息室",     r:"普通"},
+  {no:"037",img:57, name:"戰舞郎",    move:"–",     sk:["交易"],              h:"健身區的救護所",     r:"普通"},
+  {no:"042",img:123,name:"飛天螳螂",  move:"居合斬",sk:["伐木"],              h:"樹蔭的草叢",         r:"普通"},
+  {no:"043",img:127,name:"巨鉗螳螂",  move:"–",     sk:["伐木"],              h:"樹蔭的草叢",         r:"普通",note:"空空鎮"},
+  {no:"044",img:214,name:"凱羅斯",    move:"–",     sk:["伐木","建築"],       h:"樹蔭的草叢",         r:"稀有"},
+  {no:"045",img:129,name:"鯉魚王",    move:"躍起",  sk:[],                    h:"海釣",               r:"普通"},
+  {no:"048",img:163,name:"咕咕",      move:"–",     sk:["交易","飛翔"],       h:"高台的草叢",         r:"普通"},
+  {no:"049",img:164,name:"貓頭夜鷹",  move:"–",     sk:["交易","飛翔"],       h:"在柔和的光線中安眠", r:"普通"},
+  {no:"050",img:214,name:"赫拉克羅斯",move:"–",     sk:["伐木","建築"],       h:"樹蔭的草叢",         r:"稀有"},
+  {no:"051",img:314,name:"電螢蟲",    move:"–",     sk:["炒熱氣氛"],          h:"潤澤的花田",         r:"稀有"},
+  {no:"052",img:469,name:"甜甜螢",    move:"–",     sk:["炒熱氣氛"],          h:"潤澤的花田",         r:"稀有"},
+  {no:"053",img:143,name:"溶食獸",    move:"–",     sk:["收納"],              h:"肚子咕咕叫餐廳",     r:"普通"},
+  {no:"055",img:332,name:"沙漠奈亞",  move:"–",     sk:["栽培"],              h:"大晴天景點",         r:"普通"},
+  {no:"056",img:357,name:"夢歌仙人掌",move:"–",     sk:["栽培","散佈"],       h:"樹蔭的花田",         r:"稀有"},
+  {no:"057",img:415,name:"三蜜蜂",    move:"–",     sk:["散佈"],              h:"美麗的花田",         r:"普通"},
+  {no:"058",img:416,name:"蜂女王",    move:"–",     sk:["收集蜂蜜","尋物"],   h:"滿是鮮花的景色",     r:"普通"},
+  {no:"059",img:422,name:"無殼海兔",  move:"–",     sk:["潤澤"],              h:"指路告示牌",         r:"稀有"},
+  {no:"061",img:187,name:"飄飄球",    move:"–",     sk:["夢之島"],            h:"乘著溫暖的風",       r:"普通"},
+  {no:"063",img:50, name:"螺釘地鼠",  move:"耕地",  sk:["尋物"],              h:"新鮮蔬菜田",         r:"普通"},
+  {no:"064",img:51, name:"龍頭地鼠",  move:"–",     sk:["尋物","伐木"],       h:"新鮮蔬菜田",         r:"稀有"},
+  {no:"065",img:297,name:"搬運小匠",  move:"–",     sk:["建築"],              h:"岩影的草叢",         r:"普通"},
+  {no:"066",img:66, name:"鐵骨土人",  move:"–",     sk:["建築"],              h:"岩影的草叢",         r:"稀有"},
+  {no:"067",img:67, name:"修建老匠",  move:"–",     sk:["建築","粉碎"],       h:"工地的發電廠",       r:"普通"},
+  {no:"068",img:607,name:"燭光靈",    move:"–",     sk:["燃燒"],              h:"墳墓的供品",         r:"普通"},
+  {no:"071",img:371,name:"牙牙",      move:"–",     sk:["伐木"],              h:"圓木的溫暖",         r:"普通"},
+  {no:"072",img:373,name:"斧牙龍",    move:"–",     sk:["伐木"],              h:"伐木工的工作場",     r:"普通"},
+  {no:"074",img:316,name:"黏黏寶",    move:"–",     sk:["潤澤"],              h:"樹蔭的花田",         r:"普通"},
+  {no:"075",img:317,name:"黏美兒",    move:"–",     sk:["潤澤"],              h:"潤澤的草叢",         r:"普通"},
+  {no:"077",img:333,name:"古月鳥",    move:"–",     sk:["潤澤","飛翔"],       h:"潤澤的草叢",         r:"普通"},
+  {no:"078",img:172,name:"皮丘",      move:"–",     sk:["發電"],              h:"野餐餐桌",           r:"普通"},
+  {no:"080",img:25, name:"雷丘",      move:"–",     sk:["發電","炒熱氣氛"],   h:"大自然中的市場",     r:"普通"},
+  {no:"081",img:41, name:"超音蝠",    move:"–",     sk:["尋物"],              h:"樹蔭的黃色草叢",     r:"普通"},
+  {no:"084",img:52, name:"喵喵",      move:"–",     sk:["交易"],              h:"休息處",             r:"普通"},
+  {no:"085",img:53, name:"貓老大",    move:"–",     sk:["交易","尋物"],       h:"邪惡組織的基地",     r:"普通"},
+  {no:"086",img:54, name:"可達鴨",    move:"–",     sk:["尋物"],              h:"溫泉的洗浴區",       r:"普通"},
+  {no:"088",img:261,name:"卡蒂狗",    move:"–",     sk:["燃燒","尋物"],       h:"來收拾吧",           r:"普通"},
+  {no:"090",img:83, name:"大蔥鴨",    move:"–",     sk:["伐木","建築"],       h:"打包好了喔",         r:"普通"},
+  {no:"096",img:100,name:"霹靂電球",  move:"–",     sk:["發電","爆炸"],       h:"公園長椅",           r:"普通"},
+  {no:"098",img:113,name:"蛋蛋",      move:"–",     sk:["栽培","瞬間移動"],   h:"南國風情",           r:"普通"},
+  {no:"100",img:440,name:"小福蛋",    move:"–",     sk:["交易"],              h:"鬧鐘床位區",         r:"特殊"},
+  {no:"103",img:101,name:"電擊怪",    move:"–",     sk:["發電"],              h:"自動販賣機組",       r:"普通"},
+  {no:"106",img:131,name:"拉普拉斯",  move:"衝浪",  sk:["潤澤"],              h:"熱帶海濱",           r:"普通"},
+  {no:"109",img:167,name:"圓絲蛛",    move:"–",     sk:["散佈"],              h:"黃色草叢",           r:"普通"},
+  {no:"111",img:179,name:"咩利羊",    move:"–",     sk:["發電","散佈"],       h:"用毛線編織",         r:"普通"},
+  {no:"114",img:238,name:"露力麗",    move:"–",     sk:["潤澤","炒熱氣氛"],   h:"潤澤的黃色草叢",     r:"普通"},
+  {no:"115",img:239,name:"瑪力露",    move:"–",     sk:["潤澤","炒熱氣氛"],   h:"潤澤的黃色草叢",     r:"普通"},
+  {no:"120",img:255,name:"火稚雞",    move:"–",     sk:["燃燒"],              h:"嘰嘰喳喳的飯",       r:"普通"},
+  {no:"123",img:278,name:"長翅鷗",    move:"–",     sk:["潤澤","飛翔"],       h:"高台的黃色草叢",     r:"普通"},
+  {no:"125",img:296,name:"幕下力士",  move:"–",     sk:["建築","整地"],       h:"樹蔭的黃色草叢",     r:"普通"},
+  {no:"126",img:297,name:"鐵掌力士",  move:"–",     sk:["建築","整地"],       h:"高台的黃色草叢",     r:"稀有"},
+  {no:"128",img:393,name:"波加曼",    move:"–",     sk:["潤澤"],              h:"潤澤的黃色草叢",     r:"普通"},
+  {no:"129",img:394,name:"波皇子",    move:"–",     sk:["潤澤","交易"],       h:"潤澤的黃色草叢",     r:"稀有"},
+  {no:"132",img:316,name:"破破袋",    move:"–",     sk:["回收"],              h:"垃圾收集處",         r:"普通"},
+  {no:"134",img:434,name:"索羅亞",    move:"–",     sk:["交易"],              h:"清涼的花田",         r:"普通"},
+  {no:"136",img:417,name:"泡沫栗鼠",  move:"–",     sk:["分類"],              h:"換裝空間",           r:"普通"},
+  {no:"142",img:313,name:"布撥",      move:"–",     sk:["發電"],              h:"清涼的花田",         r:"普通"},
+  {no:"143",img:314,name:"布土撥",    move:"–",     sk:["發電","粉碎"],       h:"肚子咕咕叫餐廳",     r:"普通"},
+  {no:"146",img:336,name:"阿柏蛇",    move:"–",     sk:["尋物"],              h:"潤澤的優雅花田",     r:"普通"},
+  {no:"148",img:173,name:"皮寶寶",    move:"–",     sk:["炒熱氣氛"],          h:"優雅的花田",         r:"普通"},
+  {no:"149",img:39, name:"皮皮",      move:"–",     sk:["炒熱氣氛"],          h:"銅像觀光景點",       r:"普通"},
+  {no:"151",img:174,name:"寶寶丁",    move:"–",     sk:["炒熱氣氛"],          h:"花田的樹樁舞台",     r:"普通"},
+  {no:"152",img:40, name:"胖丁",      move:"–",     sk:["炒熱氣氛"],          h:"花田的樹樁舞台",     r:"普通"},
+  {no:"154",img:50, name:"地鼠",      move:"–",     sk:["炒熱氣氛"],          h:"樹蔭的紅色草叢",     r:"普通"},
+  {no:"156",img:66, name:"腕力",      move:"–",     sk:["建築","分類"],       h:"岩影的草叢",         r:"普通"},
+  {no:"157",img:67, name:"豪力",      move:"–",     sk:["建築","分類"],       h:"草叢訓練場",         r:"普通"},
+  {no:"159",img:74, name:"小拳石",    move:"–",     sk:["粉碎"],              h:"綠色草叢",           r:"普通",note:"空空鎮"},
+  {no:"160",img:75, name:"隆隆石",    move:"滾動",  sk:["粉碎"],              h:"佈滿青苔的岩石",     r:"普通"},
+  {no:"162",img:449,name:"鴨嘴寶寶",  move:"–",     sk:["燃燒"],              h:"美麗的花田",         r:"普通"},
+  {no:"163",img:450,name:"鴨嘴火獸",  move:"–",     sk:["燃燒"],              h:"挖掘並燃燒",         r:"普通"},
+  {no:"165",img:195,name:"盆才怪",    move:"–",     sk:["整地"],              h:"樹蔭的紅色草叢",     r:"普通"},
+  {no:"169",img:443,name:"幼基拉斯",  move:"–",     sk:["粉碎","整地"],       h:"佈滿青苔",           r:"普通"},
+  {no:"170",img:444,name:"沙基拉斯",  move:"–",     sk:["粉碎","整地"],       h:"樹蔭的粉色草叢",     r:"普通"},
+  {no:"172",img:270,name:"蓮葉童子",  move:"–",     sk:["潤澤"],              h:"輕快的水窪",         r:"普通"},
+  {no:"173",img:271,name:"蓮帽小童",  move:"–",     sk:["潤澤"],              h:"溫泉垂釣",           r:"普通"},
+  {no:"174",img:272,name:"樂天河童",  move:"–",     sk:["潤澤","炒熱氣氛"],   h:"輕快的水窪",         r:"稀有"},
+  {no:"176",img:218,name:"煤炭龜",    move:"–",     sk:["燃燒"],              h:"長滿青苔的溫泉",     r:"普通"},
+  {no:"177",img:281,name:"圓法師",    move:"–",     sk:["炒熱氣氛"],          h:"紅色草叢",           r:"普通"},
+  {no:"179",img:276,name:"聒噪鳥",    move:"–",     sk:["炒熱氣氛","飛翔"],   h:"高台的紅色草叢",     r:"普通"},
+  {no:"180",img:447,name:"利歐路",    move:"–",     sk:["建築"],              h:"紅色草叢",           r:"普通"},
+  {no:"183",img:401,name:"燃燒蟲",    move:"–",     sk:["燃燒","散佈"],       h:"樹蔭的優雅花田",     r:"普通"},
+  {no:"186",img:163,name:"投羽梟",    move:"–",     sk:["栽培","伐木"],       h:"三角形樹蔭下",       r:"普通"},
+  {no:"188",img:390,name:"炎兔兒",    move:"–",     sk:["燃燒"],              h:"紅色草叢",           r:"普通"},
+  {no:"191",img:417,name:"貪心栗鼠",  move:"–",     sk:["尋物","炒熱氣氛"],   h:"樹蔭的草叢",         r:"普通"},
+  {no:"194",img:436,name:"大炭車",    move:"–",     sk:["燃燒","分類"],       h:"平交道",             r:"普通"},
+  {no:"198",img:509,name:"狗仔包",    move:"–",     sk:["尋物"],              h:"優雅的花田",         r:"普通"},
+  {no:"200",img:218,name:"炭小侍",    move:"–",     sk:["燃燒"],              h:"岩漿般滾燙",         r:"普通"},
+  {no:"205",img:442,name:"索財靈",    move:"–",     sk:["收集"],              h:"迷你博物館",         r:"普通"},
+  {no:"207",img:37, name:"六尾",      move:"–",     sk:["燃燒"],              h:"毛茸茸的花田",       r:"普通"},
+  {no:"217",img:343,name:"魔牆人偶",  move:"–",     sk:["分類","建築"],       h:"亮晶晶的洗手間",     r:"普通"},
+  {no:"223",img:149,name:"快龍",      move:"滑翔",  sk:["潤澤","飛翔"],       h:"–",                 r:"特殊"},
+  {no:"224",img:255,name:"火球鼠",    move:"–",     sk:["燃燒"],              h:"水管的秘密基地",     r:"普通"},
+  {no:"227",img:355,name:"夢妖",      move:"–",     sk:["交易"],              h:"毛茸茸的花田",       r:"普通"},
+  {no:"229",img:203,name:"麒麟奇",    move:"–",     sk:["分類"],              h:"樹蔭的毛茸茸花田",   r:"普通"},
+  {no:"237",img:127,name:"大顎蟻",    move:"–",     sk:["整地","散佈"],       h:"粉色草叢",           r:"普通"},
+  {no:"240",img:333,name:"青綿鳥",    move:"–",     sk:["散佈"],              h:"粉色草叢",           r:"普通"},
+  {no:"242",img:302,name:"夜巡靈",    move:"–",     sk:["分類"],              h:"粉色草叢",           r:"普通"},
+  {no:"246",img:81, name:"金屬怪",    move:"–",     sk:["回收"],              h:"博士研究中",         r:"普通"},
+  {no:"251",img:258,name:"呱呱泡蛙",  move:"–",     sk:["潤澤"],              h:"潤澤的粉色草叢",     r:"普通"},
+  {no:"257",img:519,name:"稚山雀",    move:"–",     sk:["伐木"],              h:"毛茸茸的花田",       r:"普通"},
+  {no:"260",img:147,name:"多龍梅西亞",move:"–",     sk:["分類","尋物"],       h:"樹蔭的粉色草叢",     r:"普通"},
+  {no:"263",img:495,name:"新葉喵",    move:"–",     sk:["栽培"],              h:"樹蔭的粉色草叢",     r:"普通"},
+  {no:"268",img:299,name:"小鍛匠",    move:"–",     sk:["建築"],              h:"載著大件行李",       r:"普通"},
+  {no:"275",img:696,name:"護城龍",    move:"–",     sk:["粉碎","散佈"],       h:"盾牌化石展示台",     r:"普通"},
+  {no:"277",img:697,name:"怪顎龍",    move:"–",     sk:["粉碎","散佈"],       h:"暴君化石展示台",     r:"普通"},
+  {no:"280",img:133,name:"伊布",      move:"–",     sk:["交易"],              h:"美麗的花田",         r:"普通"},
+  {no:"281",img:134,name:"水伊布",    move:"–",     sk:["潤澤"],              h:"閃耀的藍色",         r:"普通",note:"空空鎮"},
+  {no:"282",img:135,name:"雷伊布",    move:"–",     sk:["發電"],              h:"令人發麻的薯條",     r:"普通",note:"空空鎮"},
+  {no:"283",img:136,name:"火伊布",    move:"–",     sk:["燃燒"],              h:"如火燃燒般辛辣",     r:"普通",note:"空空鎮"},
+  {no:"284",img:196,name:"太陽伊布",  move:"–",     sk:["分類"],              h:"優雅的午後",         r:"普通",note:"空空鎮"},
+  {no:"285",img:197,name:"月亮伊布",  move:"–",     sk:["尋物"],              h:"黑色的滋味",         r:"普通",note:"空空鎮"},
+  {no:"286",img:470,name:"葉伊布",    move:"–",     sk:["栽培"],              h:"綠色的三明治",       r:"普通",note:"空空鎮"},
+  {no:"287",img:471,name:"冰伊布",    move:"–",     sk:["交易"],              h:"冰涼的刨冰",         r:"普通",note:"空空鎮"},
+  {no:"288",img:700,name:"仙子伊布",  move:"–",     sk:["炒熱氣氛"],          h:"可愛的蛋糕",         r:"普通",note:"空空鎮"},
+  {no:"289",img:382,name:"蓋歐卡",    move:"–",     sk:[],                    h:"–",                 r:"特殊",note:"乾燥荒野之鎮劇情"},
+  {no:"290",img:243,name:"雷公",      move:"–",     sk:["發電"],              h:"–",                 r:"特殊",note:"陰沉海濱之鎮劇情"},
+  {no:"293",img:490,name:"波爾凱尼恩",move:"–",     sk:["燃燒"],              h:"–",                 r:"特殊",note:"崎嶇山區之鎮劇情"},
+  {no:"296",img:146,name:"火焰鳥",    move:"–",     sk:["飛翔"],              h:"–",                 r:"特殊"},
+  {no:"300",img:151,name:"夢幻",      move:"–",     sk:["瞬間移動"],          h:"–",                 r:"特殊",note:"鑲嵌全部神秘石板"},
+];
+
+const TOTAL=POKEDEX.length;
+const allSkills=[...new Set(POKEDEX.flatMap(p=>p.sk).filter(Boolean))].sort();
+
+// Build skill chips
+const scEl=document.getElementById('skillChips');
+allSkills.forEach(sk=>{
+  const d=document.createElement('div');
+  d.className='chip'; d.dataset.sk=sk; d.textContent=sk;
+  d.onclick=()=>setSkill(sk);
+  scEl.appendChild(d);
+});
+
+// State
+let caught=JSON.parse(localStorage.getItem('pokopia_v2')||'{}');
+let fMode='all',fSk='all',fR='all',q='',visNos=[];
+
+// Bindings
+document.querySelectorAll('[data-f]').forEach(b=>{
+  b.onclick=()=>{fMode=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()};
+});
+document.getElementById('searchInput').addEventListener('input',e=>{q=e.target.value.trim();render()});
+document.querySelectorAll('[data-r]').forEach(c=>{
+  c.onclick=()=>{fR=c.dataset.r;document.querySelectorAll('[data-r]').forEach(x=>x.classList.remove('active'));c.classList.add('active');render()};
+});
+document.getElementById('catchVisible').onclick=()=>{visNos.forEach(no=>caught[no]=true);save();render();toast(`🎉 已標記 ${visNos.length} 隻！`,false)};
+document.getElementById('resetAll').onclick=()=>{if(confirm('確定重置全部捕捉記錄？')){caught={};save();render();toast('已重置',true)}};
+window.addEventListener('scroll',()=>document.getElementById('scrollTop').classList.toggle('vis',scrollY>400));
+
+function setSkill(sk){fSk=sk;document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.sk===sk));render()}
+
+function getFiltered(){
+  return POKEDEX.filter(p=>{
+    if(fMode==='caught'&&!caught[p.no])return false;
+    if(fMode==='uncaught'&&caught[p.no])return false;
+    if(fSk!=='all'&&!p.sk.includes(fSk))return false;
+    if(fR!=='all'&&p.r!==fR)return false;
+    if(q){const lq=q.toLowerCase();if(!p.name.includes(lq)&&!p.no.includes(lq)&&!p.h.toLowerCase().includes(lq)&&!p.sk.some(s=>s.includes(lq)))return false}
+    return true;
+  });
+}
+
+function pbSVG(isCaught){
+  if(isCaught)return`<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" fill="white" stroke="#c0392b" stroke-width="2.5"/><path d="M2,20 Q2,2 20,2 Q38,2 38,20 Z" fill="#e74c3c"/><rect x="2" y="18" width="36" height="4" fill="#c0392b"/><circle cx="20" cy="20" r="6" fill="white" stroke="#c0392b" stroke-width="2.5"/><circle cx="20" cy="20" r="3" fill="#e74c3c"/><circle cx="13" cy="10" r="2.5" fill="rgba(255,255,255,.5)"/></svg>`;
+  return`<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" fill="#f5f0e8" stroke="#ccc" stroke-width="2.5"/><path d="M2,20 Q2,2 20,2 Q38,2 38,20 Z" fill="#e0d8d0"/><rect x="2" y="18" width="36" height="4" fill="#ccc"/><circle cx="20" cy="20" r="6" fill="white" stroke="#ccc" stroke-width="2.5"/><circle cx="20" cy="20" r="3" fill="#e8e0d8"/></svg>`;
+}
+
+function render(){
+  const grid=document.getElementById('grid');
+  const filtered=getFiltered();
+  visNos=filtered.map(p=>p.no);
+  const cc=Object.values(caught).filter(Boolean).length;
+  document.getElementById('caughtCount').textContent=cc;
+  document.getElementById('totalCount').textContent=TOTAL;
+  document.getElementById('resultInfo').textContent=`顯示 ${filtered.length} / ${TOTAL} 筆（圖鑑共 ${TOTAL} 隻，編號有跳號屬正常設計）`;
+  const pct=Math.round(cc/TOTAL*100);
+  document.getElementById('progPct').textContent=pct+'%';
+  const circ=2*Math.PI*23;
+  document.getElementById('progRing').style.strokeDasharray=circ;
+  document.getElementById('progRing').style.strokeDashoffset=circ-(pct/100)*circ;
+  grid.innerHTML='';
+  if(!filtered.length){grid.innerHTML=`<div class="empty-s"><div class="ei">🔍</div><div class="et">找不到符合條件的寶可夢</div></div>`;return}
+  filtered.forEach((p,i)=>{
+    const ic=!!caught[p.no];
+    const card=document.createElement('div');
+    card.className='card'+(ic?' caught':'');
+    card.style.animationDelay=Math.min(i*18,400)+'ms';
+    const imgUrl=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.img}.png`;
+    const skH=p.sk.length?p.sk.map(s=>`<span class="stag">${s}</span>`).join(''):`<span style="font-size:10px;color:#ccc">無技能</span>`;
+    card.innerHTML=`
+      <div class="rstripe ${p.r}"></div>
+      <div class="cno">No.${p.no}</div>
+      <div class="pimg">
+        <img src="${imgUrl}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="noimg" style="display:none">❓</div>
+      </div>
+      <div class="cname">${p.name}</div>
+      <div class="cskills">${skH}</div>
+      <div class="chabitat">📍 ${p.h}</div>
+      ${p.note?`<div class="cnote">⚠ ${p.note}</div>`:''}
+      <div class="cfoot">
+        <span class="rbadge ${p.r}">${p.r}</span>
+        <button class="pb-btn" title="${ic?'取消捕捉':'標記已捕捉'}">${pbSVG(ic)}</button>
+      </div>`;
+    const btn=card.querySelector('.pb-btn');
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      caught[p.no]=!caught[p.no];
+      if(!caught[p.no])delete caught[p.no];
+      save();
+      const nc=!!caught[p.no];
+      btn.innerHTML=pbSVG(nc);
+      btn.classList.add('throw');
+      btn.addEventListener('animationend',()=>btn.classList.remove('throw'),{once:true});
+      card.classList.toggle('caught',nc);
+      card.querySelector('.cname').style.color=nc?'#2a9b47':'';
+      card.style.background=nc?'linear-gradient(180deg,#f0fff4 0%,#fff 50%)':'';
+      toast(nc?`⚾ ${p.name} 捕捉成功！`:`${p.name} 取消標記`,!nc);
+      updateStats();
+    });
+    grid.appendChild(card);
+  });
+}
+
+function updateStats(){
+  const cc=Object.values(caught).filter(Boolean).length;
+  document.getElementById('caughtCount').textContent=cc;
+  const pct=Math.round(cc/TOTAL*100);
+  document.getElementById('progPct').textContent=pct+'%';
+  const circ=2*Math.PI*23;
+  document.getElementById('progRing').style.strokeDasharray=circ;
+  document.getElementById('progRing').style.strokeDashoffset=circ-(pct/100)*circ;
+}
+
+function save(){localStorage.setItem('pokopia_v2',JSON.stringify(caught))}
+let tt;
+function toast(msg,unc){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='show'+(unc?' unc':'');
+  clearTimeout(tt);tt=setTimeout(()=>t.className='',2000);
+}
+
+render();
+</script>
+</body>
+</html>
