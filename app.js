@@ -70,9 +70,9 @@ const T = {
 const AREAS = [
   { id:'palette-town',      label:'空空鎮',      color:'#4caf50' },
   { id:'withered-wasteland',label:'乾巴巴荒野',  color:'#ff9800' },
-  { id:'bleak-beach',       label:'陰沉沉海濱',  color:'#03a9f4' },
-  { id:'rocky-ridges',      label:'凸隆隆山地',  color:'#795548' },
-  { id:'sparkling-skylands',label:'亮晶晶空島',  color:'#9c27b0' },
+  { id:'bleak-beach',       label:'陰沉沉海濱',  color:'#29b6f6' },
+  { id:'rocky-ridges',      label:'凸隆隆山地',  color:'#d4a84b' },
+  { id:'sparkling-skylands',label:'亮晶晶空島',  color:'#ce93d8' },
 ];
 
 const TYPE_COLORS = {
@@ -196,11 +196,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Apply filters ────────────────────────────────────────────
 function applyFilters() {
   const showEvent    = document.getElementById('showEvent').checked;
-  const showOwned    = document.getElementById('showOnlyOwned').checked;
+  const showOwned = document.getElementById('showOnlyOwned').checked;
 
   filtered = ALL.filter(p => {
     if (!showEvent && p.isEvent) return false;
     if (showOwned && !ownedSet.has(p.id)) return false;
+    const showOnlyUncaught = document.getElementById('showOnlyUncaught').checked;
+    if (showOnlyUncaught && ownedSet.has(p.id)) return false;
 
     if (AF.search) {
       const q = AF.search;
@@ -289,7 +291,7 @@ function renderCard(p) {
     : '';
 
   const habThumbs = (pk.habitats||[]).slice(0,6).map(h =>
-    `<div class="hab-thumb" title="${h.name}"><img src="images/habitats/habitat_${h.id}.png" alt="${h.name}" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`
+    `<div class="hab-thumb" title="${h.name}" onclick="event.stopPropagation();openHabitatModal(${h.id})"><img src="images/habitats/habitat_${h.id}.png" alt="${h.name}" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`
   ).join('');
 
   const areaOptions = [
@@ -318,11 +320,13 @@ function renderCard(p) {
       ${habThumbs ? `<div class="card-habitats">${habThumbs}</div>` : ''}
 
       <!-- 區域下拉 -->
-      <select class="card-area-select" onclick="event.stopPropagation()"
-        onchange="event.stopPropagation();cardSetArea(${p.id},this)"
-        style="${areaInfo ? `border-color:${areaInfo.color};color:${areaInfo.color}` : ''}">
-        ${areaOptions}
-      </select>
+      <div class="card-area-wrap" onclick="event.stopPropagation()">
+        <svg class="pin-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <select class="card-area-select" onchange="cardSetArea(${p.id},this)"
+          style="${areaInfo ? `border-color:${areaInfo.color};color:${areaInfo.color}` : ''}">
+          ${areaOptions}
+        </select>
+      </div>
     </div>`;
 }
 
@@ -461,7 +465,7 @@ function buildDetail(p) {
 
   // Habitats
   const habCards = (pk.habitats||[]).map(h => `
-    <div class="habitat-card">
+    <div class="habitat-card clickable-hab" onclick="openHabitatModal(${h.id})">
       <div class="rarity-bar ${h.rarity}"></div>
       <img src="images/habitats/habitat_${h.id}.png" alt="${h.name}" loading="lazy" onerror="this.style.background='#1e2235';this.style.height='70px'">
       <div class="hab-info">
@@ -670,5 +674,82 @@ function closeStats(e) {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeStats(); }
+  if (e.key === 'Escape') { closeModal(); closeStats(); closeHabitatModal(); }
 });
+
+// ── Habitat Modal ────────────────────────────────────────────
+function buildHabitatLookup() {
+  const lookup = {};
+  for (const p of ALL) {
+    const pk = p.pokopia || {};
+    for (const h of (pk.habitats || [])) {
+      if (!lookup[h.id]) {
+        lookup[h.id] = { id: h.id, name: h.name, materials: h.materials, pokemon: [] };
+      }
+      lookup[h.id].pokemon.push({ ...p, rarity: h.rarity });
+    }
+  }
+  return lookup;
+}
+
+function openHabitatModal(habitatId) {
+  const lookup = buildHabitatLookup();
+  const hab = lookup[habitatId];
+  if (!hab) return;
+  document.getElementById('habitatModalContent').innerHTML = buildHabitatDetail(hab);
+  document.getElementById('habitatModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeHabitatModal(e) {
+  if (!e || e.target === document.getElementById('habitatModal')) {
+    document.getElementById('habitatModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+function buildHabitatDetail(hab) {
+  const rarityOrder = { 'very-rare': 0, rare: 1, common: 2 };
+  const sorted = [...hab.pokemon].sort((a, b) =>
+    (rarityOrder[a.rarity] ?? 3) - (rarityOrder[b.rarity] ?? 3)
+  );
+
+  const pokemonCards = sorted.map(p => {
+    const typeIcons = (p.types||[]).map(t =>
+      `<div class="type-icon" title="${T.types[t]||t}"><img src="images/types/${t}.png" alt="${t}"></div>`
+    ).join('');
+    return `
+      <div class="hab-poke-card" onclick="closeHabitatModal();openModal(${p.id})">
+        <div class="rarity-bar ${p.rarity}"></div>
+        <img class="hab-poke-img" src="images/pokemon/${p.slug}.png" alt="${p.name}" loading="lazy">
+        <div class="hab-poke-id">${idStr(p)}</div>
+        <div class="hab-poke-name">${p.name}</div>
+        <div class="hab-poke-types">${typeIcons}</div>
+        <div class="hab-poke-rarity">${T.rarity[p.rarity]||p.rarity}</div>
+      </div>`;
+  }).join('');
+
+  const rarityLegend = `
+    <div class="hab-rarity-legend">
+      <span><span class="rarity-dot very-rare"></span>非常稀有</span>
+      <span><span class="rarity-dot rare"></span>稀有</span>
+      <span><span class="rarity-dot common"></span>普通</span>
+    </div>`;
+
+  return `
+    <div class="hab-modal-header">
+      <img class="hab-modal-img" src="images/habitats/habitat_${hab.id}.png" alt="${hab.name}" onerror="this.style.display='none'">
+      <div class="hab-modal-info">
+        <div class="hab-modal-name">${hab.name}</div>
+        ${hab.materials ? `<div class="hab-modal-materials">🔧 ${hab.materials}</div>` : ''}
+        <div class="hab-modal-count">${hab.pokemon.length} 種寶可夢</div>
+      </div>
+    </div>
+    <div class="hab-modal-body">
+      <div class="hab-body-top">
+        <span class="d-section-title" style="font-size:.7rem">出沒寶可夢</span>
+        ${rarityLegend}
+      </div>
+      <div class="hab-poke-grid">${pokemonCards}</div>
+    </div>`;
+}

@@ -34,6 +34,7 @@
   <div class="toggle-row">
     <label class="toggle"><input type="checkbox" id="showEvent" onchange="applyFilters()"><span>顯示活動限定</span></label>
     <label class="toggle"><input type="checkbox" id="showOnlyOwned" onchange="applyFilters()"><span>只顯示已捕獲</span></label>
+    <label class="toggle"><input type="checkbox" id="showOnlyUncaught" onchange="applyFilters()"><span>只顯示未捕獲</span></label>
     <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilters()">
       <svg id="filterArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
       收合篩選
@@ -100,6 +101,14 @@
   <div class="modal-box" id="modalBox">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Habitat Modal -->
+<div id="habitatModal" class="modal-overlay" onclick="closeHabitatModal(event)">
+  <div class="modal-box hab-modal-box">
+    <button class="modal-close" onclick="closeHabitatModal()">✕</button>
+    <div id="habitatModalContent"></div>
   </div>
 </div>
 
