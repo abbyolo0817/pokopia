@@ -138,23 +138,47 @@ header h1{font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:-.3px}
 .hab-thumb{width:28px;height:28px;border-radius:5px;overflow:hidden;border:1px solid var(--border)}
 .hab-thumb img{width:100%;height:100%;object-fit:cover}
 
-/* ── Pokeball owned mark ── */
-.pokeball-mark{
-  position:absolute;top:6px;right:7px;
-  width:20px;height:20px;border-radius:50%;
+/* ── Card pokeball button ── */
+.card-ball-btn{
+  position:absolute;top:7px;right:7px;
+  width:26px;height:26px;border-radius:50%;
+  background:transparent;border:none;padding:0;cursor:pointer;
+  z-index:5;transition:transform .15s;
+}
+.card-ball-btn:hover{transform:scale(1.15)}
+.ball-icon{
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(180deg,#888 50%,#ddd 50%);
+  border:2.5px solid #555;position:relative;overflow:hidden;
+  transition:all .15s;
+}
+.ball-icon::before{
+  content:'';position:absolute;width:100%;height:2.5px;
+  background:#555;top:calc(50% - 1.25px);
+}
+.ball-icon::after{
+  content:'';position:absolute;width:8px;height:8px;border-radius:50%;
+  background:#ddd;border:2px solid #555;
+  top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;
+}
+/* Owned = red pokeball */
+.card-ball-btn.owned .ball-icon{
   background:linear-gradient(180deg,#e53935 50%,#fff 50%);
-  border:2px solid #333;
-  box-shadow:0 0 0 1px rgba(0,0,0,.3);
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
+  border-color:#222;
 }
-.pokeball-mark::before{
-  content:'';position:absolute;width:100%;height:2px;background:#333;top:calc(50% - 1px);
+.card-ball-btn.owned .ball-icon::before{background:#222}
+.card-ball-btn.owned .ball-icon::after{background:#fff;border-color:#222}
+
+/* ── Card area select ── */
+.card-area-select{
+  width:100%;margin-top:6px;
+  background:var(--bg3);border:1.5px solid var(--border);
+  color:var(--text2);border-radius:7px;padding:4px 6px;
+  font-size:.72rem;cursor:pointer;outline:none;
+  transition:border-color .15s,color .15s;
+  appearance:auto;
 }
-.pokeball-mark::after{
-  content:'';position:absolute;width:7px;height:7px;border-radius:50%;
-  background:#fff;border:2px solid #333;z-index:1;
-}
+.card-area-select:focus{border-color:var(--accent)}
 
 /* Area tag on card */
 .card-area-tag{

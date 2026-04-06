@@ -38,19 +38,32 @@ const T = {
   },
   rarity: { common:'普通', rare:'稀有', 'very-rare':'非常稀有' },
   favorites: {
-    'lots of nature':'大量自然','soft stuff':'柔軟物品','cute stuff':'可愛物品',
-    'lots of water':'大量水','group activities':'團體活動','sweet flavors':'甜味',
-    'spicy flavors':'辣味','sour flavors':'酸味','salty flavors':'鹹味',
-    'bitter flavors':'苦味','dry flavors':'乾燥','lots of energy':'大量活力',
-    'hard stuff':'堅硬物品','hot stuff':'熱的東西','cool stuff':'涼爽物品',
-    'lots of fire':'大量火焰','electricity':'電力','fancy stuff':'豪華物品',
-    'darkness':'黑暗','ghosts':'幽靈','fighting':'打鬥','books':'書籍',
-    'speed':'速度','music':'音樂','honey':'蜂蜜','rocks':'岩石','bugs':'蟲子',
-    'ice':'冰雪','sky':'天空','sea':'大海','forest':'森林','technology':'科技',
-    'treasure':'寶物','sleeping':'睡覺','riddles':'謎題','recycling':'回收',
-    'colors':'色彩','electronics':'電子產品','nice breezes':'涼風','glass stuff':'玻璃物品',
-    'symbols':'符號','luxury':'奢華','lots of people':'很多人','ancient stuff':'古老物品',
-    'spooky stuff':'恐怖物品','pretty stuff':'美麗物品','nature':'自然','fun':'樂趣',
+    // 口味
+    'sweet flavors':'甜味','spicy flavors':'辣味','sour flavors':'酸味',
+    'bitter flavors':'苦味','dry flavors':'澀味',
+    // 氛圍
+    'lots of nature':'自然感','lots of water':'水感','lots of fire':'火焰感',
+    'lots of dirt':'泥土感','ocean vibes':'海洋感','nice breezes':'微風',
+    'spooky stuff':'陰森的東西','gatherings':'聚會','group activities':'團體活動',
+    // 材質
+    'soft stuff':'柔軟的東西','hard stuff':'堅硬的東西','shiny stuff':'閃亮的東西',
+    'wooden stuff':'木製品','metal stuff':'金屬製品','stone stuff':'石製品',
+    'glass stuff':'玻璃製品','fabric':'布製品','containers':'容器',
+    // 形狀
+    'round stuff':'圓形的東西','blocky stuff':'方塊狀','slender objects':'細長的東西',
+    'spinning stuff':'旋轉的東西','wobbly stuff':'搖晃的東西','woblly stuff':'搖晃的東西',
+    'sharp stuff':'尖銳的東西',
+    // 活動
+    'exercise':'運動健身','construction':'建設','consturction':'建設',
+    'play spaces':'遊樂場','rides':'交通工具','watching stuff':'觀賞用',
+    'healing':'治療','cleanliness':'清潔','garbage':'垃圾',
+    // 外觀
+    'cute stuff':'可愛的東西','pretty flowers':'美麗花朵','colorful stuff':'色彩繽紛',
+    'looks like food':'像食物','symbols':'符號','letters and words':'文字',
+    'letter and words':'文字','electronics':'電子產品',
+    // 其他
+    'luxury':'豪華','strange stuff':'奇妙的東西','complicated stuff':'複雜的東西',
+    'noisy stuff':'會發聲',
   }
 };
 
@@ -251,7 +264,7 @@ function idStr(p) {
 function renderCard(p) {
   const pk    = p.pokopia || {};
   const owned = ownedSet.has(p.id);
-  const area  = areaMap[p.id];
+  const area  = areaMap[p.id] || '';
   const areaInfo = area ? AREAS.find(a=>a.id===area) : null;
 
   const typeIcons = (p.types||[]).map(t =>
@@ -279,14 +292,21 @@ function renderCard(p) {
     `<div class="hab-thumb" title="${h.name}"><img src="images/habitats/habitat_${h.id}.png" alt="${h.name}" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`
   ).join('');
 
-  const areaTag = areaInfo
-    ? `<div class="card-area-tag" style="background:${areaInfo.color}">${areaInfo.label}</div>`
-    : '';
+  const areaOptions = [
+    `<option value="">－ 未分配</option>`,
+    ...AREAS.map(a => `<option value="${a.id}"${area===a.id?' selected':''}>${a.label}</option>`)
+  ].join('');
 
   return `
     <div class="poke-card${owned?' owned':''}" data-id="${p.id}" onclick="openModal(${p.id})">
       ${p.isEvent ? '<span class="event-badge">活動</span>' : ''}
-      ${owned ? '<div class="pokeball-mark"></div>' : ''}
+
+      <!-- 捕獲按鈕 -->
+      <button class="card-ball-btn${owned?' owned':''}" title="${owned?'取消捕獲':'標記捕獲'}"
+        onclick="event.stopPropagation();cardToggleOwned(${p.id},this)">
+        <div class="ball-icon"></div>
+      </button>
+
       <div class="card-id">${idStr(p)}</div>
       <div class="card-img-wrap">
         <img class="card-img" src="images/pokemon/${p.slug}.png" alt="${p.name}" loading="lazy"
@@ -296,7 +316,13 @@ function renderCard(p) {
       <div class="card-types">${typeIcons}</div>
       <div class="card-icons">${specIcons}${timeIcons}${weatherIcons}${envIcon}</div>
       ${habThumbs ? `<div class="card-habitats">${habThumbs}</div>` : ''}
-      ${areaTag}
+
+      <!-- 區域下拉 -->
+      <select class="card-area-select" onclick="event.stopPropagation()"
+        onchange="event.stopPropagation();cardSetArea(${p.id},this)"
+        style="${areaInfo ? `border-color:${areaInfo.color};color:${areaInfo.color}` : ''}">
+        ${areaOptions}
+      </select>
     </div>`;
 }
 
@@ -498,6 +524,47 @@ function buildDetail(p) {
     </div>`;
 }
 
+// ── Card-level quick actions ─────────────────────────────────
+function cardToggleOwned(id, btn) {
+  if (ownedSet.has(id)) { ownedSet.delete(id); } else { ownedSet.add(id); }
+  saveOwned();
+  const isOwned = ownedSet.has(id);
+  // Update card border
+  const card = btn.closest('.poke-card');
+  if (card) card.classList.toggle('owned', isOwned);
+  // Update button state
+  btn.classList.toggle('owned', isOwned);
+  btn.title = isOwned ? '取消捕獲' : '標記捕獲';
+  // Sync modal button if open
+  const modalBtn = document.querySelector(`.btn-owned`);
+  if (modalBtn && document.getElementById('modal').classList.contains('open')) {
+    const modalId = parseInt(document.querySelector('.detail-name')?.closest('.detail-header')
+      ?.querySelector('.detail-id')?.textContent?.replace(/[^0-9]/g,''));
+    if (modalId === id) {
+      modalBtn.classList.toggle('owned', isOwned);
+      modalBtn.textContent = isOwned ? '✓ 已捕獲' : '＋ 標記捕獲';
+    }
+  }
+  if (document.getElementById('showOnlyOwned').checked) applyFilters();
+}
+
+function cardSetArea(id, select) {
+  const areaId = select.value;
+  if (areaId) areaMap[id] = areaId;
+  else delete areaMap[id];
+  saveAreaMap();
+  // Update select styling
+  const areaInfo = AREAS.find(a => a.id === areaId);
+  if (areaInfo) {
+    select.style.borderColor = areaInfo.color;
+    select.style.color = areaInfo.color;
+  } else {
+    select.style.borderColor = '';
+    select.style.color = '';
+  }
+  if (AF.area.size > 0) applyFilters();
+}
+
 // ── Owned ────────────────────────────────────────────────────
 function toggleOwned(id, btn) {
   if (ownedSet.has(id)) {
@@ -510,12 +577,11 @@ function toggleOwned(id, btn) {
     .forEach(el => el.classList.toggle('owned', ownedSet.has(id)));
   const card = document.querySelector(`.poke-card[data-id="${id}"]`);
   if (card) {
-    let mark = card.querySelector('.pokeball-mark');
-    if (ownedSet.has(id) && !mark) {
-      mark = document.createElement('div');
-      mark.className = 'pokeball-mark';
-      card.appendChild(mark);
-    } else if (!ownedSet.has(id) && mark) mark.remove();
+    const ballBtn = card.querySelector('.card-ball-btn');
+    if (ballBtn) {
+      ballBtn.classList.toggle('owned', ownedSet.has(id));
+      ballBtn.title = ownedSet.has(id) ? '取消捕獲' : '標記捕獲';
+    }
   }
   if (document.getElementById('showOnlyOwned').checked) applyFilters();
 }
