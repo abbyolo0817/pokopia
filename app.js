@@ -322,7 +322,7 @@ function renderCard(p) {
       <!-- 區域下拉 -->
       <div class="card-area-wrap" onclick="event.stopPropagation()">
         <svg class="pin-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-        <select class="card-area-select" onchange="cardSetArea(${p.id},this)"
+        <select class="card-area-select${areaInfo?' has-value':''}" onchange="cardSetArea(${p.id},this)"
           style="${areaInfo ? `border-color:${areaInfo.color};color:${areaInfo.color}` : ''}">
           ${areaOptions}
         </select>
@@ -470,7 +470,7 @@ function buildDetail(p) {
       <img src="images/habitats/habitat_${h.id}.png" alt="${h.name}" loading="lazy" onerror="this.style.background='#1e2235';this.style.height='70px'">
       <div class="hab-info">
         <div class="hab-name">${h.name}</div>
-        ${h.materials ? `<div class="hab-materials">${h.materials}</div>` : ''}
+        ${h.materials ? `<div class="hab-materials-text">${h.materials}</div>` : ''}
         <div style="font-size:.6rem;color:var(--text3);margin-top:2px">${T.rarity[h.rarity]||h.rarity}</div>
       </div>
     </div>`).join('');
@@ -502,7 +502,7 @@ function buildDetail(p) {
         <button class="btn-owned${owned?' owned':''}" onclick="toggleOwned(${p.id},this)">
           ${owned ? '✓ 已捕獲' : '＋ 標記捕獲'}
         </button>
-        <select class="area-select" onchange="setArea(${p.id},this.value)">
+        <select class="area-select" onchange="setArea(${p.id},this.value)" style="${curArea ? `border-color:${AREAS.find(a=>a.id===curArea)?.color};color:${AREAS.find(a=>a.id===curArea)?.color}` : ''}">
           ${areaOptions}
         </select>
       </div>
@@ -538,6 +538,33 @@ function buildDetail(p) {
     </div>`;
 }
 
+// ── Material image lookup ────────────────────────────────────
+const MATERIAL_SLUGS = {"椅子（任意）":"seat-any","桌子（任意）":"table-any","水":"water","盤裝食物":"plated-food","展示台":"pedestal-exhibition-stand","高處":"high-up-location","原野花":"wildflowers","椅子（長型）":"seat-wide","大樹（任意）":"large-tree-any","綠草":"tall-grass","黃草":"yellow-tall-grass","紅草":"red-tall-grass","樹籬（任意）":"hedge-any","床（任意）":"bed-any","溫泉水":"hot-spring-water","喇叭":"speaker","釣竿":"fishing-rod","海水":"ocean-water","自動販賣機":"vending-machine","大椰子樹":"large-palm-tree","紙箱":"cardboard-boxes","舞台":"small-stage","岩場花":"mountain-flowers","苔蘚":"moss","立麥":"standing-mic","粉紅草":"pink-tall-grass","大石頭":"large-boulder","墓石":"gravestone","營火":"campfire","瀑布":"waterfall","路燈（任意）":"streetlight-any","沙包":"punching-bag","急救箱":"first-aid-kit","推車":"cart","木箱":"wooden-crate","細長蠟燭":"slender-candle","木鳥巢箱":"wooden-birdhouse","海邊花":"seashore-flowers","垃圾袋":"garbage-bags","垃圾桶（任意）":"waste-bin-any","觀葉植物（任意）":"potted-plant-any","聚光燈":"spotlight","驚嚇箱":"boo-in-the-box","書架":"bookcase","自然風桌":"plain-table","手推車":"wheelbarrow","挖掘工具":"excavation-tools","提燈":"lantern","浮島花":"skyland-flowers","踏腳石":"stepping-stones","電視":"television","篝火盆":"firepit","草（任意）":"tall-grass-any","燈光（任意）":"lighting-any","菜園（任意）":"vegetable-field-any","小花瓶":"small-vase","圓木椅":"log-chair","圓木桌":"log-table","樹墩（任意）":"tree-stump-any","蘑菇燈":"mushroom-lamp","海灘傘":"beach-parasol","油桶":"metal-drum","纏繞電線":"jumbled-cords","樹果籃":"berry-basket","飄浮泡泡晴天娃娃（晴天）":"castform-weather-charm-sun","遺落物（大型）":"lost-relic-large","泥水":"muddy-water","海灘椅":"beach-chair","玩具（任意）":"toy-any","垃圾桶":"garbage-bin","菜單板":"menu-board","櫃台":"counter","馬克杯":"mug","氣球":"balloon","衣櫃（任意）":"closet-any","隔斷（任意）":"partition-any","梳妝台（任意）":"dresser-any","淋浴":"shower","遊戲機台":"arcade-machine","拳擊遊戲機":"punching-game","火力發電機":"furnace","木桶":"barrel","收銀機":"cash-register","皮卡丘人偶":"pikachu-doll","三角樹":"pointy-tree","沙袋":"sandbags","浮萍":"duckweed","溫泉出口":"hot-spring-spout","岩漿":"lava","鐵骨":"iron-beam-or-column","爐灶":"cooking-stove","洗臉台":"modern-sink","派對杯":"paper-party-cups","CD播放器":"cd-player","雜誌架":"magazine-rack","工業風桌":"industrial-desk","浴缸":"bathub","水晶球":"crystal-ball","輪胎":"tires","風速狗人偶":"arcanine-doll","堆疊鐵管":"iron-pipes","腳踏凳":"step-stool","溜滑梯":"slide","筆記型電腦":"laptop","實驗組":"science-experiment","悠閒花":"peaceful-flowers","便當":"lunch-box","樹果樹（任意）":"berry-tree-any","稻草凳":"straw-stool","稻草桌":"straw-table","野餐籃":"picnic-basket","箭頭指示牌":"arrow-sign","木棧道":"wooden-path","人偶（任意）":"doll-any","詭異蠟燭":"eerie-candle","吉利蛋盆栽":"chansey-plant","豬籠草盆栽":"pitcher-plant-pot","充氣船":"inflatable-boat","枯綠草":"dry-tall-grass","光滑岩石":"smooth-rock","操控台":"control-unit","營火堆":"bonfire","飄浮泡泡晴天娃娃（雨天）":"castform-weather-charm-rain","博士的寶物":"professor-s-treasure","圓木床":"log-bed","樹果椅":"berry-chair","樹果床":"berry-bed","樹果桌":"berry-table","樹果桌燈":"berry-table-lamp","庭園椅":"garden-chair","庭園燈":"garden-light","庭園桌":"garden-table","午睡床":"naptime-bed","古董衣櫃":"antique-closet","古董床":"antique-bed","古董梳妝台":"antique-dresser","古董椅":"antique-chair","精靈球沙發":"poke-ball-sofa","精靈球床":"poke-ball-bed","精靈球桌":"poke-ball-table","精靈球燈":"poke-ball-light","風力發電機":"windmill","稻草床":"straw-bed","看板（任意）":"sign-any","電線桿":"utility-pole","雅致椅":"chic-chair","雅致桌":"chic-table","馬車":"wagon","邊桌":"side-table","雷丘看板":"raichu-sign","鏡子（大型）":"mirror-large","編織套組":"knitting-supplies","自然風收納櫃":"plain-chest","鬧鐘":"alarm-clock","水力發電機":"waterwheel","碼頭":"walkway","雅緻籬笆":"stylish-hedge","雅致沙發":"chic-sofa","船舵":"ship-s-wheel","發射筒":"cannon","畫布":"canvas","供台":"offering-dish","皮卡丘沙發":"pikachu-sofa","可愛沙發":"cute-sofa","可愛桌":"cute-table","可愛燈":"cute-lamp","可愛床":"cute-bed","可愛梳妝台":"cute-dresser","度假沙發":"resort-sofa","度假桌":"resort-table","度假吊床":"resort-hammock","度假燈":"resort-light","自然風床":"plain-bed","自然風沙發":"plain-sofa","自然風燈":"plain-lamp","苔岩":"mossy-boulder","水桶":"water-bucket","滾燙岩":"molten-rock","熔爐":"smelting-furnace","筍岩":"stalagmites","大桌子":"table-large","派對盤":"party-plate","麵包窯":"bread-oven","廚房桌":"kitchen-table","平底鍋（任意）":"frying-pan-any","食物櫃台":"food-counter","平板電腦":"tablet","棲木":"perch","CD架":"cd-rack","辦公室置物櫃":"office-locker","看板":"sign","月夜舞蹈像":"moonlight-dance-statue","鐵軌":"railway-track","平交道柵欄":"crossing-gate","砧板":"cutting-board","時尚鍋":"stylish-cooking-pot","豪華燈":"gorgeous-lamp","豪華床":"gorgeous-bed","豪華沙發":"luxury-sofa","豪華桌":"gorgeous-table","鐵床":"iron-bed","鐵桌":"iron-table","鐵椅":"iron-chair","工業風床":"industrial-bed","工業風椅":"industrial-chair","水管":"concrete-pipe","獨木舟":"canoe","火把":"torch","自行車":"bicycle","石壁爐":"stone-fireplace","簡約靠墊":"simple-cushion","微波爐":"microwave","管椅":"pipe-chair","桌燈":"desk-light","人孔蓋":"manhole-cover","三角錐":"traffic-cone","壁掛毛巾":"towel-rack","洗手台":"washstand","壁掛鏡":"wall-mirror","架子（任意）":"stand-any","筆筒":"pencil-holder","音符墊（任意）":"music-mat-any","清掃組":"cleaning-set","加濕器":"humidifier","辦公桌":"office-desk","辦公椅":"office-chair","辦公室架子":"office-shelf","顯微鏡":"microscope","論文":"research-paper","白板":"whiteboard","電腦":"computer","報紙":"newspaper","大鼓":"big-drum","地板開關":"floor-switch","臉孔看板":"face-cutout-board","跨越輪胎":"tire-toy","鐵架":"iron-scaffold","掛軸":"hanging-scroll","怪力岩":"strength-rock","火箭隊壁飾":"team-rocket-wall-hanging","快龍人偶":"dragonite-doll","伊布人偶":"eevee-doll","電競床":"gaming-bed","電競電腦":"gaming-pc","電競冰箱":"gaming-fridge","電競椅":"gaming-chair","流行床":"pop-bed","流行沙發":"pop-sofa","流行桌":"pop-table","帥氣電吉他":"cool-electric-guitar","帥氣電貝斯":"cool-electric-bass","詛咒之鎧":"malicious-armor","祝賀之鎧":"auspicious-armor","翼之化石・頭":"wing-fossil-head","翼之化石・右翼":"wing-fossil-right-wing","翼之化石・左翼":"wing-fossil-left-wing","翼之化石・軀幹":"wing-fossil-body","翼之化石・尾巴":"wing-fossil-tail","頭蓋化石":"skull-fossil","頭錘化石・頭":"headbutt-fossil-head","頭錘化石・軀幹":"headbutt-fossil-body","頭錘化石・尾巴":"headbutt-fossil-tail","盾之化石":"armor-fossil","盾牌化石（頭）":"shield-fossil-head","盾牌化石（身）":"shield-fossil-body","盾牌化石（尾）":"shield-fossil-tail","顎之化石":"jaw-fossil","暴君化石・頭":"despot-fossil-head","暴君化石・軀幹":"despot-fossil-body","暴君化石・尾巴":"despot-fossil-tail","暴君化石・腳":"despot-fossil-legs","鰭化石":"sail-fossil","凍原化石・頭":"tundra-fossil-head","凍原化石・軀幹":"tundra-fossil-body","凍原化石・尾巴":"tundra-fossil-tail","冰淇淋蘇打":"soda-float","薯條":"fried-potatoes","披薩":"pizza","下午茶套組":"afternoon-tea-set","巧克力餅乾":"chocolate-cookies","三明治":"sandwiches","刨冰":"shaved-ice","緞帶蛋糕":"ribbon-cake","花朵背包":"flower-backpack","毽子草水壺":"hoppip-water-bottle","花朵靠墊":"flower-cushion","花朵餐具組":"flower-tableware-set","展示台（任意）":"pedestal-any","屏風（任意）":"folding-screen-any"};
+
+function parseMaterials(matStr) {
+  // "綠草 x4, 原野花 x2" → [{name, qty, slug}]
+  if (!matStr) return [];
+  return matStr.split(',').map(s => {
+    s = s.trim();
+    const m = s.match(/^(.+?)\s*x(\d+)$/);
+    const name = m ? m[1].trim() : s;
+    const qty  = m ? m[2] : '';
+    const slug = MATERIAL_SLUGS[name] || null;
+    return { name, qty, slug };
+  });
+}
+
+function renderMaterials(matStr) {
+  const items = parseMaterials(matStr);
+  if (!items.length) return '';
+  return items.map(it => {
+    const img = it.slug
+      ? `<img src="https://pokopiaguide.com/images/items/${it.slug}.png" alt="${it.name}" onerror="this.style.display='none'">`
+      : '';
+    return `<div class="mat-item">${img}<span>${it.name}${it.qty ? ` x${it.qty}` : ''}</span></div>`;
+  }).join('');
+}
+
 // ── Card-level quick actions ─────────────────────────────────
 function cardToggleOwned(id, btn) {
   if (ownedSet.has(id)) { ownedSet.delete(id); } else { ownedSet.add(id); }
@@ -563,20 +590,7 @@ function cardToggleOwned(id, btn) {
 }
 
 function cardSetArea(id, select) {
-  const areaId = select.value;
-  if (areaId) areaMap[id] = areaId;
-  else delete areaMap[id];
-  saveAreaMap();
-  // Update select styling
-  const areaInfo = AREAS.find(a => a.id === areaId);
-  if (areaInfo) {
-    select.style.borderColor = areaInfo.color;
-    select.style.color = areaInfo.color;
-  } else {
-    select.style.borderColor = '';
-    select.style.color = '';
-  }
-  if (AF.area.size > 0) applyFilters();
+  setArea(id, select.value);
 }
 
 // ── Owned ────────────────────────────────────────────────────
@@ -606,20 +620,40 @@ function setArea(id, areaId) {
   else delete areaMap[id];
   saveAreaMap();
 
-  // Update card area tag
+  const areaInfo = AREAS.find(a => a.id === areaId);
+
+  // Update card select
   const card = document.querySelector(`.poke-card[data-id="${id}"]`);
   if (card) {
-    let tag = card.querySelector('.card-area-tag');
-    const areaInfo = AREAS.find(a => a.id === areaId);
-    if (areaInfo) {
-      if (!tag) { tag = document.createElement('div'); tag.className='card-area-tag'; card.appendChild(tag); }
-      tag.textContent = areaInfo.label;
-      tag.style.background = areaInfo.color;
-    } else {
-      if (tag) tag.remove();
+    const cardSel = card.querySelector('.card-area-select');
+    if (cardSel) {
+      cardSel.value = areaId || '';
+      applyAreaSelectStyle(cardSel, areaInfo);
     }
   }
+
+  // Update modal select if open for same pokemon
+  const modal = document.getElementById('modal');
+  if (modal.classList.contains('open')) {
+    const modalSel = modal.querySelector('.area-select');
+    if (modalSel) {
+      modalSel.value = areaId || '';
+    }
+  }
+
   if (AF.area.size > 0) applyFilters();
+}
+
+function applyAreaSelectStyle(sel, areaInfo) {
+  if (areaInfo) {
+    sel.style.borderColor = areaInfo.color;
+    sel.style.color = areaInfo.color;
+    sel.classList.add('has-value');
+  } else {
+    sel.style.borderColor = '';
+    sel.style.color = '';
+    sel.classList.remove('has-value');
+  }
 }
 
 // ── Collection Stats ─────────────────────────────────────────
@@ -741,7 +775,7 @@ function buildHabitatDetail(hab) {
       <img class="hab-modal-img" src="images/habitats/habitat_${hab.id}.png" alt="${hab.name}" onerror="this.style.display='none'">
       <div class="hab-modal-info">
         <div class="hab-modal-name">${hab.name}</div>
-        ${hab.materials ? `<div class="hab-modal-materials">🔧 ${hab.materials}</div>` : ''}
+        ${hab.materials ? `<div class="hab-modal-materials">${renderMaterials(hab.materials)}</div>` : ''}
         <div class="hab-modal-count">${hab.pokemon.length} 種寶可夢</div>
       </div>
     </div>
