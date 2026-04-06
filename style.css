@@ -296,4 +296,15 @@ header h1{font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:-.3px}
   .poke-row .row-right{display:none}
   .filter-row-label{min-width:28px}
   header h1{font-size:1rem}
+
+  /* 手機：篩選欄展開時限高 + 內部捲動 */
+  .filters:not(.collapsed){
+    max-height:52vh !important;
+    overflow-y:auto;
+  }
+  /* 手機：預設收合（由 JS 控制），調整按鈕讓它更明顯 */
+  .filter-toggle-btn{
+    padding:6px 14px;
+    font-size:.82rem;
+  }
 }

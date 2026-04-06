@@ -363,24 +363,34 @@ function toggleFilters() {
   filtersOpen = !filtersOpen;
   const panel = document.getElementById('filtersPanel');
   const btn   = document.getElementById('filterToggleBtn');
+  const isMobile = window.innerWidth <= 640;
   if (filtersOpen) {
-    panel.style.maxHeight = panel.scrollHeight + 'px';
+    // 手機用 CSS 的 max-height: 52vh，桌面用 scrollHeight
+    if (!isMobile) panel.style.maxHeight = panel.scrollHeight + 'px';
+    else panel.style.maxHeight = '';  // 讓 CSS media query 的 52vh 生效
     panel.classList.remove('collapsed');
     btn.classList.remove('collapsed');
-    btn.querySelector('span') && (btn.lastChild.textContent = ' 收合篩選');
   } else {
-    panel.style.maxHeight = panel.scrollHeight + 'px'; // set explicit before collapsing
+    if (!isMobile) panel.style.maxHeight = panel.scrollHeight + 'px';
     requestAnimationFrame(() => {
       panel.classList.add('collapsed');
       btn.classList.add('collapsed');
     });
-    btn.querySelector('span') && (btn.lastChild.textContent = ' 展開篩選');
   }
 }
 // Set initial max-height after content loads
 function initFilterPanel() {
   const panel = document.getElementById('filtersPanel');
-  if (panel) panel.style.maxHeight = panel.scrollHeight + 'px';
+  const btn   = document.getElementById('filterToggleBtn');
+  if (!panel) return;
+  // 手機直式 → 預設收合
+  if (window.innerWidth <= 640) {
+    filtersOpen = false;
+    panel.classList.add('collapsed');
+    btn && btn.classList.add('collapsed');
+  } else {
+    panel.style.maxHeight = panel.scrollHeight + 'px';
+  }
 }
 
 // ── View toggle ──────────────────────────────────────────────
